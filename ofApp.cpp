@@ -153,20 +153,19 @@ void ofApp::keyPressed  (int key){
 		volume += 0.05;
 		volume = std::min(volume, 1.f);
 	}
-	
-	if( key == 's' ){
-		soundStream.start();
+	else if (key >= 'a' && key <= 'z') {
+		keyboard.keyPressed(key);
+		float freq = keyboard.get_frequency(key);
+		oscillo.set_frequency(freq);
 	}
-	
-	if( key == 'e' ){
-		soundStream.stop();
-	}
-	
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased  (int key){
-
+	if (key >= 'a' && key <= 'z') {
+		keyboard.keyReleased(key);
+		oscillo.stop(); // no polyphony implemented, so we just stop the oscillo when a key is released
+	}	
 }
 
 //--------------------------------------------------------------
@@ -211,19 +210,6 @@ void ofApp::windowResized(int w, int h){
 
 //--------------------------------------------------------------
 void ofApp::audioOut(ofSoundBuffer & buffer){
-	// sin (n) seems to have trouble when n is very large, so we
-	// keep phase in the range of 0-glm::two_pi<float>() like this:
-	while (phase > glm::two_pi<float>()){
-		phase -= glm::two_pi<float>();
-	}
-	phaseAdder = 0.95f * phaseAdder + 0.05f * phaseAdderTarget;
-	for (size_t i = 0; i < buffer.getNumFrames(); i++){
-		phase += phaseAdder;
-		const float sample = sin(phase) * volume;
-		monoAudio[i] = sample ;
-		buffer[i*buffer.getNumChannels()] = sample * (1-pan); // left
-		buffer[i*buffer.getNumChannels() + 1] = sample * pan; // right
-	}
 	// call oscillo to update the frequency spectrum
 	oscillo.audioOut(buffer);
 	
