@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 
-class ofApp : public ofBaseApp{
+class Oscillo : public ofBaseApp{
 
 	public:
 		// Methods
