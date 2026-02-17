@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 
-class ofApp : public ofBaseApp{
+class Oscillo : public ofBaseApp{
 
 	public:
 		// Methods
@@ -15,8 +15,10 @@ class ofApp : public ofBaseApp{
 		void set_mode(string mode);
 		void set_brillance(int brillance);
 		void set_gain(float gain);
-		void set_frequency(float frequency);	
+		void set_frequency(float frequency);
+		void stop(); // mettre le volume a zero 	
 		
+	private:
 		// Attributes
 		float frequency;
 		string mode;
