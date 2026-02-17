@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "Oscillo.h"
+#include "Keyboard.h"
 
 class ofApp : public ofBaseApp{
 
@@ -33,6 +35,8 @@ class ofApp : public ofBaseApp{
 
 		vector <float> monoAudio;
 		vector <float> frequencies;
+		Oscillo oscillo;
+		Keyboard keyboard;
 
 		//------------------- for the simple sine wave synthesis
 		float 	targetFrequency;

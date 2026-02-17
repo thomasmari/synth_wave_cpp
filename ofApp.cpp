@@ -19,6 +19,11 @@ void ofApp::setup(){
 
 	ofSoundStreamSettings settings;
 
+	oscillo = Oscillo();
+	oscillo.setup();
+	keyboard = Keyboard();
+	keyboard.setup();
+	
 	// if you want to set the device id to be different than the default:
 	//
 	//	auto devices = soundStream.getDeviceList();
@@ -214,9 +219,13 @@ void ofApp::audioOut(ofSoundBuffer & buffer){
 	phaseAdder = 0.95f * phaseAdder + 0.05f * phaseAdderTarget;
 	for (size_t i = 0; i < buffer.getNumFrames(); i++){
 		phase += phaseAdder;
-		float sample = sin(phase);
-		monoAudio[i] = buffer[i*buffer.getNumChannels()] = sample * volume;
+		const float sample = sin(phase) * volume;
+		monoAudio[i] = sample ;
+		buffer[i*buffer.getNumChannels()] = sample * (1-pan); // left
+		buffer[i*buffer.getNumChannels() + 1] = sample * pan; // right
 	}
+	// call oscillo to update the frequency spectrum
+	oscillo.audioOut(buffer);
 	
 	// Update frequency spectrum
 	computeFourierTransform(buffer);
