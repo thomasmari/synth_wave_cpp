@@ -150,6 +150,7 @@ void ofApp::draw(){
 
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
+		ofFill();
 		keyboard.draw();
 		ofPopMatrix();
 	ofPopStyle();
