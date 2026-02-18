@@ -1,5 +1,3 @@
-#pragma once
-
 #include "ofMain.h"
 #include "ofApp.h"
 #include "Keyboard.h"
@@ -19,7 +17,7 @@ void Keyboard::setup(ofApp* inParent)
         whitePressed[i] = false;
     }
 
-    for (int i = 0; i < kNumWhiteKeys - 1; i++) {
+    for (int i = 0; i < kNumWhiteKeys; i++) {
         blackPressed[i] = false;
     }
 
@@ -27,7 +25,7 @@ void Keyboard::setup(ofApp* inParent)
         freqListWhite[i] = 440;
     }
 
-    for (int i = 0; i < kNumBlackKeys - 1; i++) {
+    for (int i = 0; i < kNumBlackKeys; i++) {
         freqListBlack[i] = 440;
     }
 
@@ -38,13 +36,13 @@ void Keyboard::draw() {
 
      // White Keys
     for (int i = 0; i < kNumWhiteKeys; i++) {
+
         if (whitePressed[i])
-            ofSetColor(255, 255, 0);    //Yellow
+            ofSetColor(255, 255, 0, 255);    //Yellow
         else
-            ofSetColor(255);        //White   
+            ofSetColor(255, 255, 255, 255);        //White   
 
         ofDrawRectangle(i * keyWidth, 0, keyWidth, keyHeight);
-
         ofSetColor(0);  //Black               
         ofNoFill();
         ofDrawRectangle(i * keyWidth, 0, keyWidth, keyHeight);
@@ -55,7 +53,7 @@ void Keyboard::draw() {
     int blackIndex = 0;
     for (int i = 0; i < kNumWhiteKeys; i++) {
         
-        bool skip = (i % kNumWhiteKeys == 2) || (i % kNumWhiteKeys == 6);
+        bool skip = (i  == 2) || (i  == 6) || (i == 9);
         if (skip) continue;
 
         float x = i * keyWidth + keyWidth * 0.75;
