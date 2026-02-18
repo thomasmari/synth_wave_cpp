@@ -18,11 +18,8 @@ void ofApp::setup(){
 	soundStream.printDeviceList();
 
 	ofSoundStreamSettings settings;
-
-	oscillo = Oscillo();
 	oscillo.setup();
-	keyboard = Keyboard();
-	keyboard.setup();
+	keyboard.setup(this);
 	
 	// if you want to set the device id to be different than the default:
 	//
@@ -155,21 +152,13 @@ void ofApp::keyPressed  (int key){
 	}
 	else if (key >= 'a' && key <= 'z') {
 		keyboard.keyPressed(key);
-		float freq = keyboard.get_frequency(key);
-		oscillo.set_frequency(freq);
-		oscillo.set_gain(0.5f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
-		oscillo.set_mode("sinus");
-		oscillo.set_brillance(8);
 	}
-
-	keyboard.keyPressed(key);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased  (int key){
 	if (key >= 'a' && key <= 'z') {
 		keyboard.keyReleased(key);
-		oscillo.stop(); // no polyphony implemented, so we just stop the oscillo when a key is released
 	}	
 }
 
@@ -246,4 +235,15 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 		frequencies[k] = sqrt(F1*F1 + F2*F2);
 		frequencies[k] /= N;
 	}
+}
+
+void ofApp::noteStart(int key, float frequency){
+		oscillo.set_frequency(frequency);
+		oscillo.set_gain(0.5f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
+		oscillo.set_mode("sinus");
+		oscillo.set_brillance(8);
+}
+
+void ofApp::noteEnd(int key){
+		oscillo.stop(); // no polyphony implemented, so we just stop the oscillo when a key is released
 }

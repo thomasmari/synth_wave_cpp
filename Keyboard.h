@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ofMain.h"
-
 class ofApp;
 
 class Keyboard
@@ -10,10 +8,10 @@ class Keyboard
         static constexpr int kNumBlackKeys = 7; 
 
         public:
-                Keyboard(ofApp* parent);
+                Keyboard();
 
                 // Method
-                void setup();
+                void setup(ofApp* inParent);
                 void draw();
                 float get_frequency (int key);
                 void keyPressed(int key);
@@ -25,8 +23,8 @@ class Keyboard
                 bool whitePressed[kNumWhiteKeys];
                 bool blackPressed[kNumBlackKeys];
 
-                const char whiteMap = {'q','s','d','f','g','h','j','k','l'};
-                const char blackMap = {'z','e','t','y','u','o','p'};
+                const char whiteMap[kNumWhiteKeys] = {'q','s','d','f','g','h','j','k','l'};
+                const char blackMap[kNumBlackKeys] = {'z','e','t','y','u','o','p'};
 
                 float keyWidth;
                 float keyHeight;

@@ -26,7 +26,10 @@ class ofApp : public ofBaseApp{
 		
 		void audioOut(ofSoundBuffer & buffer);
 		void computeFourierTransform(ofSoundBuffer & buffer);
-		
+
+		void noteStart(int key, float frequency);
+		void noteEnd(int key);
+
 		ofSoundStream soundStream;
 
 		float 	pan;
