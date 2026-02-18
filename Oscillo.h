@@ -24,4 +24,6 @@ class Oscillo : public ofBaseApp{
 		string mode;
 		int brillance;
 		float gain;
+		float phase;
+
 };
