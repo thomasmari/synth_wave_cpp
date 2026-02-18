@@ -15,11 +15,15 @@ class Oscillo : public ofBaseApp{
 		void set_mode(string mode);
 		void set_brillance(int brillance);
 		void set_gain(float gain);
-		void set_frequency(float frequency);	
+		void set_frequency(float frequency);
+		void stop(); // mettre le volume a zero 	
 		
+	private:
 		// Attributes
 		float frequency;
 		string mode;
 		int brillance;
 		float gain;
+		float phase;
+
 };
