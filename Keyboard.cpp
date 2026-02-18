@@ -1,23 +1,79 @@
+#pragma once
+
+#include "ofMain.h"
 #include "Keyboard.h"
+
 
 //--------------------------------------------------------------
 void Keyboard::setup() {
     // Initialize an empty keyboard (or placeholder frequencies)
-    keyList.clear();
+    keyWidth = ofGetWidth() / numWhiteKeys;
+    keyHeight = ofGetHeight() * 0.4;
+
+    whitePressed.assign(numWhiteKeys, false);
+    blackPressed.assign(numWhiteKeys, false);
+    freqListWhite.assign(numWhiteKeys, 440);
+    freqListBlack.assign(7, 440);
 }
 
 //--------------------------------------------------------------
 void Keyboard::draw() {
-    // Nothing to draw for now
+
+     // White Keys
+    for (int i = 0; i < numWhiteKeys; i++) {
+        if (whitePressed[i])
+            ofSetColor(255, 255, 0);    //Yellow
+        else
+            ofSetColor(255);        //White   
+
+        ofDrawRectangle(i * keyWidth, 0, keyWidth, keyHeight);
+
+        ofSetColor(0);  //Black               
+        ofNoFill();
+        ofDrawRectangle(i * keyWidth, 0, keyWidth, keyHeight);
+        ofFill();
+    }
+
+    // Black keys
+    int blackIndex = 0;
+    for (int i = 0; i < numWhiteKeys; i++) {
+        
+        bool skip = (i % numWhiteKeys == 2) || (i % numWhiteKeys == 6);
+        if (skip) continue;
+
+        float x = i * keyWidth + keyWidth * 0.75;
+
+        if (blackPressed[blackIndex])
+            ofSetColor(255, 255, 0);     //Yellow
+        else
+            ofSetColor(0);     // Black        
+
+        ofDrawRectangle(x, 0, keyWidth * 0.5, keyHeight * 0.6);
+        blackIndex++;
+    }
 }
 
 //--------------------------------------------------------------
 float Keyboard::get_frequency(int key) {
-    // Return a valid frequency if key exists, otherwise 0
-	// Generate a random number between 0 and 100
-	// int randomNum = rand() % 101;
-    return 220.0f ; // Add a random offset to the base frequency
-    // return 220.0f + randomNum * 10.0f; // Add a random offset to the base frequency
+
+    float currentFreq = 0;
+
+    // White
+    for (int i = 0; i < whiteMap.size(); i++) {
+        if (key == whiteMap[i]) {
+            whitePressed[i] = true;
+            currentFreq = freqListWhite[i];
+        }
+    }
+
+    // Black
+    for (int i = 0; i < blackMap.size(); i++) {
+        if (key == blackMap[i]) {
+            blackPressed[i] = true;
+            currentFreq = freqListBlack[i]; 
+        }
+    }
+    return currentFreq; 
 }
 
 //--------------------------------------------------------------
@@ -29,6 +85,8 @@ void Keyboard::keyPressed(int key) {
 
     // Assign a dummy frequency (example: MIDI-style mapping)
     keyList[key] = 440.0f;
+
+    // parent->newNotePressed(key, frequency)
 }
 
 //--------------------------------------------------------------
@@ -36,4 +94,7 @@ void Keyboard::keyReleased(int key) {
     if (key >= 0 && key < keyList.size()) {
         keyList[key] = 0.0f;
     }
+
+    // parent->noteReleased(key)
 }
+

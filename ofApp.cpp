@@ -161,6 +161,8 @@ void ofApp::keyPressed  (int key){
 		oscillo.set_mode("sinus");
 		oscillo.set_brillance(8);
 	}
+
+	keyboard.keyPressed(key);
 }
 
 //--------------------------------------------------------------
