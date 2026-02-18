@@ -101,6 +101,19 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
             // incrémenter la phase pour avancer dans l’onde
             phase += 2.0f * M_PI * frequency / 44100.0f;    
         }
+    }
+    else if (mode == "sinus") {
+        for (int n=0; n<buffer_size; n++) {
+            // define sample 
+            float factor = 2.0f / M_PI;   // facteur global pour dent de scie
+            float sample = sin(n * phase);
+            sample *= factor * gain;
+            // set sample for both channels (stereo)
+			buffer[n*buffer.getNumChannels()    ] = sample; //left channel
+			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
+            // incrémenter la phase pour avancer dans l’onde
+            phase += 2.0f * M_PI * frequency / 44100.0f;    
+        }
 
     }
 }

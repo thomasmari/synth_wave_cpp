@@ -158,7 +158,7 @@ void ofApp::keyPressed  (int key){
 		float freq = keyboard.get_frequency(key);
 		oscillo.set_frequency(freq);
 		oscillo.set_gain(0.5f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
-		oscillo.set_mode("square");
+		oscillo.set_mode("sinus");
 		oscillo.set_brillance(8);
 	}
 }
