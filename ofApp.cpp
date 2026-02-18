@@ -255,7 +255,7 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 
 void ofApp::noteStart(int key, float frequency){
 		oscillo.set_frequency(frequency);
-		oscillo.set_gain(0.5f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
+		oscillo.set_gain(1.0f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
 		oscillo.set_mode("sinus");
 		oscillo.set_brillance(8);
 }

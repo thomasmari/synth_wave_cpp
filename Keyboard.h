@@ -36,8 +36,6 @@ class Keyboard
                 void keyReleased(int key);
 
                 // Attributes
-                float freqListWhite[kNumWhiteKeys];
-                float freqListBlack[kNumBlackKeys];
                 bool whitePressed[kNumWhiteKeys];
                 bool blackPressed[kNumBlackKeys];
 
