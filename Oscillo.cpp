@@ -1,5 +1,5 @@
-#pragma once
 #include "ofMain.h"
+#include "Oscillo.h"
 #include <string>
 #include <cmath>
 
@@ -65,29 +65,42 @@ void Oscillo::stop() {
 }
 
 
-float Oscillo::audioOut() {
-    float sample = 0.0f;  // va stocker le sample final
-
+void Oscillo::audioOut(ofSoundBuffer & buffer) {
+    int buffer_size = buffer.getNumFrames(); // taille du buffer // assuming mono not stereo
     if (mode == "square") {
-        float factor = 4.0f / M_PI;   // facteur global pour onde carrée
-        for (int k = 0; k < brillance; k++) {
-            int n = 2 * k + 1;  // seuls les harmoniques impaires
-            sample += sin(n * phase) / n;
+        for (int n=0; n<buffer_size; n++) {
+            // define sample  
+            float sample = 0.0f;  // va stocker le sample final
+            float factor = 4.0f / M_PI;   // facteur global pour onde carrée
+            for (int k = 0; k < brillance; k++) {
+                int n = 2 * k + 1;  // seuls les harmoniques impaires
+                sample += sin(n * phase) / n;
+            }
+            sample *= factor * gain;
+            // set sample for both channels (stereo)
+			buffer[n*buffer.getNumChannels()    ] = sample; //left channel
+			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
+            // incrémenter la phase pour avancer dans l’onde
+            phase += 2.0f * M_PI * frequency / 44100.0f;    
         }
-        sample *= factor * gain;
+
     }
     else if (mode == "saw") {
-        float factor = 2.0f / M_PI;   // facteur global pour dent de scie
-        for (int k = 1; k <= brillance; k++) {
-            float sign = (k % 2 == 0) ? -1.0f : 1.0f;
-            sample += sign * sin(k * phase) / k;
+                for (int n=0; n<buffer_size; n++) {
+            // define sample
+            float sample = 0.0f;  // va stocker le sample final  
+            float factor = 2.0f / M_PI;   // facteur global pour dent de scie
+            for (int k = 1; k <= brillance; k++) {
+                float sign = (k % 2 == 0) ? -1.0f : 1.0f;
+                sample += sign * sin(k * phase) / k;
+            }
+            sample *= factor * gain;
+            // set sample for both channels (stereo)
+			buffer[n*buffer.getNumChannels()    ] = sample; //left channel
+			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
+            // incrémenter la phase pour avancer dans l’onde
+            phase += 2.0f * M_PI * frequency / 44100.0f;    
         }
-        sample *= factor * gain;
-    }
 
-    // incrémenter la phase pour avancer dans l’onde
-    phase += 2.0f * M_PI * frequency / 44100.0f; 
-	// permey de remettre la phase dans 0 2pi
-    if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; 
-    return sample;
+    }
 }
