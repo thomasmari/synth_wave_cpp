@@ -126,7 +126,7 @@ void ofApp::draw(){
 			ofBeginShape();
 			for (unsigned int i = 0; i < frequencies.size(); i++){
 				float x =  ofMap(i, 0, frequencies.size()/2.0f, 0, 900, true);
-				ofVertex(x, 100.0f - 2500.0f*frequencies[i]);
+				ofVertex(x, 100.0f - 100.0f*frequencies[i]);
 			}
 			ofEndShape(false);	
 		ofPopMatrix();
@@ -206,7 +206,7 @@ void ofApp::windowResized(int w, int h){
 void ofApp::audioOut(ofSoundBuffer & buffer){
 	// call oscillo to update the frequency spectrum
 	oscillo.audioOut(buffer);
-	
+	monoAudio = buffer.getBuffer(); 
 	// Update frequency spectrum
 	computeFourierTransform(buffer);
 
