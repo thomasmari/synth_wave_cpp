@@ -23,7 +23,7 @@ class Keyboard
                 bool whitePressed[kNumWhiteKeys];
                 bool blackPressed[kNumBlackKeys];
 
-                const char whiteMap[kNumWhiteKeys] = {'q','s','d','f','g','h','j','k','l'};
+                const char whiteMap[kNumWhiteKeys] = {'q','s','d','f','g','h','j','k','l','m'};
                 const char blackMap[kNumBlackKeys] = {'z','e','t','y','u','o','p'};
 
                 float keyWidth;
