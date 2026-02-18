@@ -137,7 +137,22 @@ void ofApp::draw(){
 	string reportString = "volume: ("+ofToString(volume, 2)+") modify with -/+ keys\npan: ("+ofToString(pan, 2)+") modify with mouse x\nsynthesis: ";
 	reportString += "sine wave (" + ofToString(targetFrequency, 2) + "hz) modify with mouse y";
 	ofDrawBitmapString(reportString, 32, 579);
-	keyboard.draw();
+ // draw the keyboard:
+	ofPushStyle();
+		ofPushMatrix();
+		ofTranslate(32, 650, 0);
+			
+		ofSetColor(225);
+		ofDrawBitmapString("Keyboard", 4, 18);
+		
+		ofSetLineWidth(1);	
+		ofDrawRectangle(0, 0, 900, 200);
+
+		ofSetColor(245, 58, 135);
+		ofSetLineWidth(3);
+		keyboard.draw();
+		ofPopMatrix();
+	ofPopStyle();
 }
 
 
