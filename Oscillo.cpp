@@ -7,7 +7,7 @@ using std::string;
 
 void Oscillo::setup(){
 	frequency = 440.0f;    
-        gain = 0.5f;           
+        gain = 0.0f;  // start with no sound         
         mode = "square";       
         brillance = 10;
 		phase = 0.0f;
