@@ -25,5 +25,7 @@ class Oscillo : public ofBaseApp{
 		int brillance;
 		float gain;
 		float phase;
+		float note_gain; // amplitude courante de la note
+		float elapsed;
 
 };

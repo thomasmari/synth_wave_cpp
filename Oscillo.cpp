@@ -48,7 +48,7 @@ void Oscillo::set_gain(float g) {
 }
 
 void Oscillo::set_mode(string m) { 
-	if (m == "square" || m == "saw" || m == "sinus") {
+	if (m == "square" || m == "saw" || m == "sinus" || m == "piano") {
 		mode = m;
 	}
 }
@@ -117,7 +117,32 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
             phase += 2.0f * M_PI * frequency / 44100.0f;
 			if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI;
     
+	}
+	
+	}
+	else if (mode == "piano") {
+    for (int n=0; n<buffer_size; n++) {
+        // Attack / decay simulée
+        float env = 1.0f; // enveloppe par défaut
+        if (gain > 0.0f) {
+            env = exp(-phase / (44100.0f * 0.3)); // décroissance exponentielle ~0.3s
         }
 
+        // Harmoniques pour enrichir le son
+        float sample = 0.0f;
+        for (int k = 1; k <= brillance; k++) {
+            float sign = (k % 2 == 0) ? -1.0f : 1.0f;
+            sample += sign * sin(k * phase) / k;
+        }
+        sample *= (2.0f / M_PI) * gain * env;
+
+        buffer[n*buffer.getNumChannels()] = sample; // left
+        buffer[n*buffer.getNumChannels()+1] = sample; // right
+
+        // incrémenter phase
+        phase += 2.0f * M_PI * frequency / 44100.0f;
+        if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI;
     }
+}
+
 }
