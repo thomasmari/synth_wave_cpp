@@ -156,7 +156,8 @@ void ofApp::keyPressed  (int key){
 	if( key == 'e' ){
 		soundStream.stop();
 	}
-	
+
+	keyboard.keyPressed(key);
 }
 
 //--------------------------------------------------------------

@@ -2,9 +2,16 @@
 
 #include "ofMain.h"
 
-class Keyboard{
+class ofApp;
+
+class Keyboard
+{
+        static constexpr int kNumWhiteKeys = 10;
+        static constexpr int kNumBlackKeys = 7; 
 
         public:
+                Keyboard(ofApp* parent);
+
                 // Method
                 void setup();
                 void draw();
@@ -13,14 +20,17 @@ class Keyboard{
                 void keyReleased(int key);
 
                 // Attributes
-                vector <float> keyList;
-                vector<bool> whitePressed;
-        vector<bool> blackPressed;
-                vector<int> whiteMap = {'q','s','d','f','g','h','j','k','l'};
-                vector<int> blackMap = {'z','e','t','y','u','o','p'};
+                float freqListWhite[kNumWhiteKeys];
+                float freqListBlack[kNumBlackKeys];
+                bool whitePressed[kNumWhiteKeys];
+                bool blackPressed[kNumBlackKeys];
 
-                int numWhiteKeys = 10;
+                const char whiteMap = {'q','s','d','f','g','h','j','k','l'};
+                const char blackMap = {'z','e','t','y','u','o','p'};
+
                 float keyWidth;
                 float keyHeight;
+
+                ofApp* parent;
 
 };
