@@ -8,7 +8,6 @@ class Oscillo : public ofBaseApp{
 		// Methods
 		void setup();
 		void audioOut(ofSoundBuffer & buffer);
-		float get_sample(float sampleRate);
 		float get_frequency();
 		float get_gain();
 		string get_mode();

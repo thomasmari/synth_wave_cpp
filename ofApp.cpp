@@ -248,6 +248,8 @@ void ofApp::windowResized(int w, int h){
 void ofApp::audioOut(ofSoundBuffer & buffer){
 	if (mode_audio == "mono") {
 		for(auto &o : oscillators){
+		// Initialize the output buffer to zero
+		for(size_t i=0; i<buffer.size(); i++) buffer[i] = 0.0f;
 		// call oscillo to update the frequency spectrum
 		o.audioOut(buffer);
 		}
@@ -257,14 +259,9 @@ void ofApp::audioOut(ofSoundBuffer & buffer){
 
 		// Sum all active oscillators
 		for(auto &o : oscillators){
-    		for(int n=0; n<buffer.getNumFrames(); n++){
-        		for(int ch=0; ch<buffer.getNumChannels(); ch++){
-            		buffer[n*buffer.getNumChannels() + ch] += o.get_sample(sampleRate);
-        		}
-    		}
-		}
-
-	}	
+    		o.audioOut(buffer);
+        	}
+    	}
 	// Save the current audio buffer for visualization
 	monoAudio = buffer.getBuffer();        	
 	computeFourierTransform(buffer); 
