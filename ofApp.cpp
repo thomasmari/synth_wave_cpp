@@ -150,6 +150,7 @@ void ofApp::draw(){
 
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
+		ofFill();
 		keyboard.draw();
 		ofPopMatrix();
 	ofPopStyle();
@@ -254,8 +255,8 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 
 void ofApp::noteStart(int key, float frequency){
 		oscillo.set_frequency(frequency);
-		oscillo.set_gain(0.5f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
-		oscillo.set_mode("piano");
+		oscillo.set_gain(1.0f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
+		oscillo.set_mode("saw");
 		oscillo.set_brillance(8);
 }
 

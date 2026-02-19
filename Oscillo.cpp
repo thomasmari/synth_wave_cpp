@@ -37,6 +37,7 @@ int Oscillo::get_brillance(){
 
 void Oscillo::set_frequency(float f){
 	if (f>0){
+        phase = 0.0f; // reset phase to avoid clicks when changing frequency
 		frequency = f;
 	}
 }
@@ -84,7 +85,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
 			buffer[n*buffer.getNumChannels()] = sample; //left channel
 			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
-            phase += 2.0f * M_PI * frequency / 44100.0f;    
+            phase += 2.0f * M_PI * frequency / 44100.0f;
+            if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]    
         }
 
     }
@@ -102,7 +104,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
 			buffer[n*buffer.getNumChannels()] = sample; //left channel
 			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
-            phase += 2.0f * M_PI * frequency / 44100.0f;    
+            phase += 2.0f * M_PI * frequency / 44100.0f;
+            if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]        
         }
     }
     else if (mode == "sinus") {
@@ -115,34 +118,9 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
 			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
             phase += 2.0f * M_PI * frequency / 44100.0f;
-			if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI;
-    
-	}
-	
-	}
-	else if (mode == "piano") {
-    for (int n=0; n<buffer_size; n++) {
-        // Attack / decay simulée
-        float env = 1.0f; // enveloppe par défaut
-        if (gain > 0.0f) {
-            env = exp(-phase / (44100.0f * 0.3)); // décroissance exponentielle ~0.3s
+            if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]    
+
         }
 
-        // Harmoniques pour enrichir le son
-        float sample = 0.0f;
-        for (int k = 1; k <= brillance; k++) {
-            float sign = (k % 2 == 0) ? -1.0f : 1.0f;
-            sample += sign * sin(k * phase) / k;
-        }
-        sample *= (2.0f / M_PI) * gain * env;
-
-        buffer[n*buffer.getNumChannels()] = sample; // left
-        buffer[n*buffer.getNumChannels()+1] = sample; // right
-
-        // incrémenter phase
-        phase += 2.0f * M_PI * frequency / 44100.0f;
-        if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI;
     }
-}
-
 }
