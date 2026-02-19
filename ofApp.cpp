@@ -126,49 +126,73 @@ void ofApp::draw(){
 		
 		ofSetLineWidth(1);	
 		ofDrawRectangle(0, 0, 700, 200);
-
+		int numberOfActiveOscillators = 0;
+		for (auto &o : oscillators) {
+			if (o.is_active()) {
+				numberOfActiveOscillators++;
+			}
+		}
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
 					
 			ofBeginShape();
 			for (unsigned int i = 0; i < monoAudio.size(); i++){
 				float x =  ofMap(i, 0, monoAudio.size(), 0, 700, true);
-				float y = ofMap(monoAudio[i]*180.0f, -180.0f, 180.0f, 200.0f, 0.0f);
-				ofVertex(x, y);
+	        
+        // On extrait le signe et on applique une racine carrée pour "gonfler" les petites valeurs
+        float sign = (monoAudio[i] > 0) ? 1.0f : -1.0f;
+		float normal_value = monoAudio[i] / numberOfActiveOscillators ; // valeur absolue
+        float compressedValue = 2*log10(1+normal_value)/log10(2) - 1.0f; // 0.8f pour éviter de toucher les bords du rectangle	
+        
+        // On map la valeur compressée [-1, 1] vers la hauteur du rectangle [200, 0]
+        float y = ofMap(compressedValue, -1.0f, 1.0f, 75.0f, 0.0f);
+		ofVertex(x, y);
 			}
 			ofEndShape(false);
 			
 		ofPopMatrix();
 	ofPopStyle();
 
-	// draw the spectrum:
-	ofPushStyle();
-		ofPushMatrix();
-		ofTranslate(32, 350, 0);
-			
-		ofSetColor(225);
-		ofDrawBitmapString("Spectrum", 4, 18);
-		
-		ofSetLineWidth(1);	
-		ofDrawRectangle(0, 0, 700, 200);
 
-		ofSetColor(245, 58, 135);
-		ofSetLineWidth(3);
-					
-			ofBeginShape();
-			for (unsigned int i = 0; i < frequencies.size(); i++){
-				float x =  ofMap(i, 0, frequencies.size()/2.0f, 0, 700, true);
-				ofVertex(x, 100.0f - 100.0f*frequencies[i]);
-			}
-			ofEndShape(false);	
-		ofPopMatrix();
-	ofPopStyle();
+
+// draw the spectrum:
+ofPushStyle();
+    ofPushMatrix();
+    ofTranslate(32, 350, 0);
+        
+    ofSetColor(225);
+    ofDrawBitmapString("Spectrum (Log Log)", 4, 18);
+    
+    ofSetLineWidth(1);  
+    ofDrawRectangle(0, 0, 700, 200);
+
+    ofSetColor(245, 58, 135);
+    ofSetLineWidth(3);
+                
+    ofBeginShape();
+    // On commence à i=1 car log(0) n'existe pas
+    for (unsigned int i = 1; i < frequencies.size() / 2.0f; i++){
+        
+        // --- AXE X : LOG FREQUENCY ---
+        // On calcule la position normalisée log(i) / log(max)
+        float logX = log10(i) / log10(frequencies.size() / 2.0f);
+        float x = logX * 700;
+
+        // --- AXE Y : LOG INTENSITY (dB) ---
+        // Conversion en dB : 20 * log10(amplitude)
+        // On ajoute 0.0001f pour éviter le log(0)
+        float db = 20.0f * log10(frequencies[i] + 0.0001f);
+        
+        // On définit une plage de dB à afficher (ex: de -60dB à 0dB)
+        // -60dB sera le bas du rectangle (200px), 0dB sera le haut (0px)
+        float y = ofMap(db, -60, 0, 200, 0, true);
+        
+        ofVertex(x, y);
+    }
+    ofEndShape(false);  
+    ofPopMatrix();
+ofPopStyle();
 	
-		
-	ofSetColor(225);
-	string reportString = "volume: ("+ofToString(volume, 2)+") modify with -/+ keys\npan: ("+ofToString(pan, 2)+") modify with mouse x\nsynthesis: ";
-	reportString += "sine wave (" + ofToString(targetFrequency, 2) + "hz) modify with mouse y";
-	ofDrawBitmapString(reportString, 32, 579);
  // draw the keyboard:
 	ofPushStyle();
 		ofPushMatrix();
@@ -190,7 +214,7 @@ void ofApp::draw(){
 
 
 //--------------------------------------------------------------
-void ofApp::keyPressed  (int key){
+void ofApp::keyPressed(int key){
 	if (key == '-' || key == '_' ){
 		volume -= 0.05;
 		volume = std::max(volume, 0.f);
