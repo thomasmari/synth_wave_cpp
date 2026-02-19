@@ -20,7 +20,29 @@ void ofApp::setup(){
 	ofSoundStreamSettings settings;
 	oscillo.setup();
 	keyboard.setup(this);
+	// Gui sliders
+gui.setup("Synth Controls");
+    gui.add(gainSlider.setup("Gain", 0.5f, 0.0f, 1.0f));
+    gui.add(brillanceSlider.setup("Brillance", 8.0f, 1.0f, 15.0f));
+
+    modeGroup.setup("Oscillator Mode");
+    modeGroup.add(squareToggle.setup(oscillo_modes[0], true)); // Square default
+    modeGroup.add(sawToggle.setup(oscillo_modes[1], false));
+    modeGroup.add(sinusToggle.setup(oscillo_modes[2], false));
+    modeGroup.add(pianoToggle.setup(oscillo_modes[3], false));
+    
+    gui.add(&modeGroup);
+
+    // Listeners
+    squareToggle.addListener(this, &ofApp::modeChanged);
+    sawToggle.addListener(this, &ofApp::modeChanged);
+    sinusToggle.addListener(this, &ofApp::modeChanged);
+    pianoToggle.addListener(this, &ofApp::modeChanged);
 	
+	// oscillo setup qnd keyboard setup
+    oscillo.setup();
+    oscillo.set_mode(oscillo_modes[0]); // Set initial mode
+    keyboard.setup(this);
 	// if you want to set the device id to be different than the default:
 	//
 	//	auto devices = soundStream.getDeviceList();
@@ -78,12 +100,11 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
 	ofSetColor(225);
-	ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
-	ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
-	
 	ofNoFill();
+
+	// draw the GUI sildders:
+	gui.draw();
 	
 	// draw the mono channel:
 	ofPushStyle();
@@ -254,12 +275,56 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 }
 
 void ofApp::noteStart(int key, float frequency){
-		oscillo.set_frequency(frequency);
-		oscillo.set_gain(1.0f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
-		oscillo.set_mode("saw");
-		oscillo.set_brillance(8);
+	oscillo.set_frequency(frequency);
+	oscillo.set_gain(gainSlider);     // Utilise la valeur du slider
+	oscillo.set_brillance((int)brillanceSlider); // Utilise la valeur du slider	
+	oscillo.set_frequency(frequency);
+	if (sinusToggle) {
+		oscillo.set_mode("sinus");
+	} else if(squareToggle) {
+		oscillo.set_mode("square");
+	} else if(sawToggle) {
+	oscillo.set_mode("saw");
+	} else if(pianoToggle) {
+		oscillo.set_mode("piano");
+	}
 }
 
 void ofApp::noteEnd(int key){
 		oscillo.stop(); // no polyphony implemented, so we just stop the oscillo when a key is released
+}
+
+//Elle assure qu'un seul toggle est actif et met à jour l'objet oscillo.
+void ofApp::modeChanged(bool & val){
+    // Determine which toggle was clicked by comparing with current oscillo mode
+    string current = oscillo.get_mode();
+
+    // Case: Square clicked
+    if(squareToggle && current != oscillo_modes[0]) {
+        sawToggle = false; sinusToggle = false; pianoToggle = false;
+        oscillo.set_mode(oscillo_modes[0]);
+    }
+    // Case: Saw clicked
+    else if(sawToggle && current != oscillo_modes[1]) {
+        squareToggle = false; sinusToggle = false; pianoToggle = false;
+        oscillo.set_mode(oscillo_modes[1]);
+    }
+    // Case: Sinus clicked
+    else if(sinusToggle && current != oscillo_modes[2]) {
+        squareToggle = false; sawToggle = false; pianoToggle = false;
+        oscillo.set_mode(oscillo_modes[2]);
+    }
+    // Case: Piano clicked
+    else if(pianoToggle && current != oscillo_modes[3]) {
+        squareToggle = false; sawToggle = false; sinusToggle = false;
+        oscillo.set_mode(oscillo_modes[3]);
+    }
+
+    // Guard: Prevent turning off the active mode (Keep at least one true)
+    if (!squareToggle && !sawToggle && !sinusToggle && !pianoToggle) {
+        if (current == oscillo_modes[0]) squareToggle = true;
+        else if (current == oscillo_modes[1]) sawToggle = true;
+        else if (current == oscillo_modes[2]) sinusToggle = true;
+        else if (current == oscillo_modes[3]) pianoToggle = true;
+    }
 }
