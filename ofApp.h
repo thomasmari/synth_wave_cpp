@@ -6,6 +6,8 @@
 
 class ofApp : public ofBaseApp{
 
+	static constexpr int MAX_VOICES = 10;
+
 	public:
 
 		void setup();
@@ -32,14 +34,16 @@ class ofApp : public ofBaseApp{
 
 		ofSoundStream soundStream;
 
+		Oscillo oscillo;
+		Keyboard keyboard;
+
 		float 	pan;
 		int		sampleRate;
 		float 	volume;
 
 		vector <float> monoAudio;
 		vector <float> frequencies;
-		Oscillo oscillo;
-		Keyboard keyboard;
+		vector<Oscillo> oscillators;
 
 		//------------------- for the simple sine wave synthesis
 		float 	targetFrequency;

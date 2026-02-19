@@ -14,6 +14,7 @@ void ofApp::setup(){
 
 	monoAudio.assign(bufferSize, 0.0);
 	frequencies.assign(bufferSize, 0.0);
+	voices.resize(MAX_VOICES);
 	
 	soundStream.printDeviceList();
 
@@ -254,12 +255,37 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 }
 
 void ofApp::noteStart(int key, float frequency){
-		oscillo.set_frequency(frequency);
-		oscillo.set_gain(1.0f); // no polyphony implemented, so we just set the gain to 0.5 when a key is pressed
-		oscillo.set_mode("sinus");
-		oscillo.set_brillance(8);
-}
+	//polyphony
+	// stop the note if it is already playing
+    for (auto &o : oscillators) {
+        if (o.active && o.key == key) {
+            o.stop();
+            o.active = false;
+        }
+    }
 
-void ofApp::noteEnd(int key){
-		oscillo.stop(); // no polyphony implemented, so we just stop the oscillo when a key is released
-}
+    // if there is a free voice, we start the note on this voice
+    for (auto &o : oscillators) {
+        if (!o.active) {
+            o.key = key;
+            o.set_frequency(frequency);
+            o.set_gain(0.5f);
+			o.set_mode("sinus");
+			o.set_brillance(8);
+            o.start();
+            o.active = true;
+            break;
+        }
+    }
+  
+
+	void ofApp::noteEnd(int key){
+			// stop the note if it is already playing
+		for (auto &o : oscillators) {
+			if (o.active && o.key == key) {
+				o.stop();
+				o.active = false;
+				break;
+			}
+		}
+	}
