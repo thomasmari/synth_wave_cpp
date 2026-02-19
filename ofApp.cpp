@@ -141,7 +141,7 @@ void ofApp::draw(){
 	        
         // On extrait le signe et on applique une racine carrée pour "gonfler" les petites valeurs
         float sign = (monoAudio[i] > 0) ? 1.0f : -1.0f;
-		float normal_value = monoAudio[i] / numberOfActiveOscillators ; // valeur absolue
+		float normal_value = 0.8f * monoAudio[i] / numberOfActiveOscillators ; // valeur absolue
         float compressedValue = 2*log10(1+normal_value)/log10(2) - 1.0f; // 0.8f pour éviter de toucher les bords du rectangle	
         
         // On map la valeur compressée [-1, 1] vers la hauteur du rectangle [200, 0]
