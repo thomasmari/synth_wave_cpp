@@ -21,7 +21,12 @@ void ofApp::setup(){
 	oscillo.setup();
 	keyboard.setup(this);
 	// Gui sliders
-gui.setup("Synth Controls");
+	gui.setup("Synthetizer Controls");
+    
+    // On calcule la position : largeur totale - largeur du GUI (souvent 200 ou 210 pixels par défaut)
+    // On laisse une petite marge de 10 pixels pour l'esthétique
+    float guiWidth = gui.getWidth();
+    gui.setPosition(ofGetWidth() - guiWidth - 10, 10);
     gui.add(gainSlider.setup("Gain", 0.5f, 0.0f, 1.0f));
     gui.add(brillanceSlider.setup("Brillance", 8.0f, 1.0f, 15.0f));
 
@@ -112,18 +117,19 @@ void ofApp::draw(){
 		ofTranslate(32, 150, 0);
 			
 		ofSetColor(225);
-		ofDrawBitmapString("Channel", 4, 18);
+		ofDrawBitmapString("Channel (mono)", 4, 18);
 		
 		ofSetLineWidth(1);	
-		ofDrawRectangle(0, 0, 900, 200);
+		ofDrawRectangle(0, 0, 700, 200);
 
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
 					
 			ofBeginShape();
 			for (unsigned int i = 0; i < monoAudio.size(); i++){
-				float x =  ofMap(i, 0, monoAudio.size(), 0, 900, true);
-				ofVertex(x, 100 -monoAudio[i]*180.0f);
+				float x =  ofMap(i, 0, monoAudio.size(), 0, 700, true);
+				float y = ofMap(monoAudio[i]*180.0f, -180.0f, 180.0f, 200.0f, 0.0f);
+				ofVertex(x, y);
 			}
 			ofEndShape(false);
 			
@@ -139,14 +145,14 @@ void ofApp::draw(){
 		ofDrawBitmapString("Spectrum", 4, 18);
 		
 		ofSetLineWidth(1);	
-		ofDrawRectangle(0, 0, 900, 200);
+		ofDrawRectangle(0, 0, 700, 200);
 
 		ofSetColor(245, 58, 135);
 		ofSetLineWidth(3);
 					
 			ofBeginShape();
 			for (unsigned int i = 0; i < frequencies.size(); i++){
-				float x =  ofMap(i, 0, frequencies.size()/2.0f, 0, 900, true);
+				float x =  ofMap(i, 0, frequencies.size()/2.0f, 0, 700, true);
 				ofVertex(x, 100.0f - 100.0f*frequencies[i]);
 			}
 			ofEndShape(false);	
