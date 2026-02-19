@@ -37,6 +37,7 @@ int Oscillo::get_brillance(){
 
 void Oscillo::set_frequency(float f){
 	if (f>0){
+        phase = 0.0f; // reset phase to avoid clicks when changing frequency
 		frequency = f;
 	}
 }
@@ -84,7 +85,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
 			buffer[n*buffer.getNumChannels()] = sample; //left channel
 			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
-            phase += 2.0f * M_PI * frequency / 44100.0f;    
+            phase += 2.0f * M_PI * frequency / 44100.0f;
+            if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]    
         }
 
     }
@@ -102,7 +104,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
 			buffer[n*buffer.getNumChannels()] = sample; //left channel
 			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
-            phase += 2.0f * M_PI * frequency / 44100.0f;    
+            phase += 2.0f * M_PI * frequency / 44100.0f;
+            if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]        
         }
     }
     else if (mode == "sinus") {
@@ -115,8 +118,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
 			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
             phase += 2.0f * M_PI * frequency / 44100.0f;
-			if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI;
-    
+            if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]    
+
         }
 
     }
