@@ -74,7 +74,7 @@ void Keyboard::keyPressed(int key) {
 	// retriev the set of key in the keyboard mapping and check if the pressed key is in this set. If it is, we set the corresponding key as pressed and we call parent->noteStart with the corresponding frequency. If the key is not found, we do nothing (no sound should be played).
 	if (keys_to_freq.find(static_cast<char>(key)) != keys_to_freq.end()) {
 		// Key is found in the mapping
-		float frequency = keys_to_freq.at(static_cast<char>(key));
+		float frequency = keys_to_freq.at(key);
 		// Update the pressed state of the key
 		for (int i = 0; i < kNumWhiteKeys; i++) {
 			if (key == whiteMap[i]) {
