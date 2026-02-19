@@ -11,15 +11,21 @@ void ofApp::setup(){
 	phaseAdder 			= 0.0f;
 	phaseAdderTarget 	= 0.0f;
 	volume				= 0.1f;
+	mode_audio = "mono"; //"mono" or "poly"
+
+	if (mode_audio == "poly") {
+		MAX_VOICES = 10;
+	} else if (mode_audio == "mono") {
+		MAX_VOICES = 1;
+	}
 
 	monoAudio.assign(bufferSize, 0.0);
 	frequencies.assign(bufferSize, 0.0);
-	voices.resize(MAX_VOICES);
+	oscillators.resize(MAX_VOICES);
 	
 	soundStream.printDeviceList();
 
 	ofSoundStreamSettings settings;
-	oscillo.setup();
 	keyboard.setup(this);
 	
 	// if you want to set the device id to be different than the default:
@@ -221,12 +227,28 @@ void ofApp::windowResized(int w, int h){
 
 //--------------------------------------------------------------
 void ofApp::audioOut(ofSoundBuffer & buffer){
-	// call oscillo to update the frequency spectrum
-	oscillo.audioOut(buffer);
-	monoAudio = buffer.getBuffer(); 
-	// Update frequency spectrum
-	computeFourierTransform(buffer);
+	if (mode_audio == "mono") {
+		for(auto &o : oscillators){
+		// call oscillo to update the frequency spectrum
+		o.audioOut(buffer);
+		}
+	} else if (mode_audio == "poly") {
+		// Initialize the output buffer to zero
+		for(size_t i=0; i<buffer.size(); i++) buffer[i] = 0.0f;
 
+		// Sum all active oscillators
+		for(auto &o : oscillators){
+    		for(int n=0; n<buffer.getNumFrames(); n++){
+        		for(int ch=0; ch<buffer.getNumChannels(); ch++){
+            		buffer[n*buffer.getNumChannels() + ch] += o.get_sample(sampleRate);
+        		}
+    		}
+		}
+
+	}	
+	// Save the current audio buffer for visualization
+	monoAudio = buffer.getBuffer();        	
+	computeFourierTransform(buffer); 
 }
 
 //--------------------------------------------------------------
@@ -255,37 +277,40 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 }
 
 void ofApp::noteStart(int key, float frequency){
-	//polyphony
+
+	//mono and polyphony implementation:
 	// stop the note if it is already playing
     for (auto &o : oscillators) {
-        if (o.active && o.key == key) {
-            o.stop();
-            o.active = false;
+        if (o.is_active() && o.get_key() == key) {
+            return; // Note is already playing, do nothing
         }
     }
 
     // if there is a free voice, we start the note on this voice
     for (auto &o : oscillators) {
-        if (!o.active) {
-            o.key = key;
+        if (!o.is_active()) {
+			o.setup();
+            o.set_key(key);
             o.set_frequency(frequency);
             o.set_gain(0.5f);
-			o.set_mode("sinus");
+			o.set_mode("saw");
 			o.set_brillance(8);
             o.start();
-            o.active = true;
             break;
         }
     }
-  
+}
+
 
 	void ofApp::noteEnd(int key){
-			// stop the note if it is already playing
+		// stop the note if it is already playing
 		for (auto &o : oscillators) {
-			if (o.active && o.key == key) {
+			if (o.is_active() && o.get_key() == key) {
+				o.set_gain(0.0f);
 				o.stop();
-				o.active = false;
 				break;
 			}
 		}
+
+		// for mono add set gain to zero, fix the stop of the second note when first is realised
 	}

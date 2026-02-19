@@ -6,8 +6,6 @@
 
 class ofApp : public ofBaseApp{
 
-	static constexpr int MAX_VOICES = 10;
-
 	public:
 
 		void setup();
@@ -34,12 +32,13 @@ class ofApp : public ofBaseApp{
 
 		ofSoundStream soundStream;
 
-		Oscillo oscillo;
 		Keyboard keyboard;
 
 		float 	pan;
 		int		sampleRate;
 		float 	volume;
+		string  mode_audio;
+		int MAX_VOICES;
 
 		vector <float> monoAudio;
 		vector <float> frequencies;

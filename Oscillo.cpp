@@ -6,11 +6,13 @@
 using std::string;
 
 void Oscillo::setup(){
-	frequency = 440.0f;    
+	    frequency = 440.0f;    
         gain = 0.0f;  // start with no sound         
         mode = "square";       
         brillance = 10;
 		phase = 0.0f;
+        key = -1;
+        active = false;
 }
 
 
@@ -30,6 +32,14 @@ string Oscillo::get_mode(){
 
 int Oscillo::get_brillance(){
 	return brillance;
+}
+
+int Oscillo::get_key(){
+	return key;
+}
+
+bool Oscillo::is_active(){
+    return active;
 }
 
 
@@ -61,13 +71,56 @@ void Oscillo::set_brillance(int b) {
 	} 
 }
 
-
-// ------------- fonction ppales -----------
-
-void Oscillo::stop() {
-    gain = 0.0f;
+void Oscillo::set_key(int k) {
+    key = k;
 }
 
+
+// ------------- fonction ppales -----------
+void Oscillo::start() {
+    active = true;
+}
+
+void Oscillo::stop() {
+    active = false;
+
+}
+
+float Oscillo::get_sample(float sampleRate) {
+    if (!active) return 0.0f;
+
+    float sample = 0.0f; 
+
+    if (mode == "square") {
+        // define sample  
+        float factor = 4.0f / M_PI;   // facteur global pour onde carrée
+        for (int k = 0; k < brillance; k++) {
+            int h = 2 * k + 1;  // seuls les harmoniques impaires
+            sample += sin(h * phase) / h;
+        }
+        sample *= factor * gain;
+    }
+    else if (mode == "saw") {
+        // define sample
+        float factor = 2.0f / M_PI;   // facteur global pour dent de scie
+        for (int k = 1; k <= brillance; k++) {
+            float sign = (k % 2 == 0) ? -1.0f : 1.0f;
+            sample += sign * sin(k * phase) / k;
+        }
+        sample *= factor * gain;
+    }
+    else if (mode == "sinus") {
+            // define sample 
+            float sample = sin(phase);
+            sample *= gain;  
+        }
+
+    // incrémenter la phase pour avancer dans l’onde
+    phase += 2.0f * M_PI * frequency / 44100.0f;
+    if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]   
+
+    return sample;
+}
 
 void Oscillo::audioOut(ofSoundBuffer & buffer) {
     int buffer_size = buffer.getNumFrames(); // taille du buffer // assuming mono not stereo
