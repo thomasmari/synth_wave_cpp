@@ -27,7 +27,29 @@ void ofApp::setup(){
 
 	ofSoundStreamSettings settings;
 	keyboard.setup(this);
+	// Gui sliders
+gui.setup("Synth Controls");
+    gui.add(gainSlider.setup("Gain", 0.5f, 0.0f, 1.0f));
+    gui.add(brillanceSlider.setup("Brillance", 8.0f, 1.0f, 15.0f));
+
+    modeGroup.setup("Oscillator Mode");
+    modeGroup.add(squareToggle.setup(oscillo_modes[0], true)); // Square default
+    modeGroup.add(sawToggle.setup(oscillo_modes[1], false));
+    modeGroup.add(sinusToggle.setup(oscillo_modes[2], false));
+    modeGroup.add(pianoToggle.setup(oscillo_modes[3], false));
+    
+    gui.add(&modeGroup);
+
+    // Listeners
+    squareToggle.addListener(this, &ofApp::modeChanged);
+    sawToggle.addListener(this, &ofApp::modeChanged);
+    sinusToggle.addListener(this, &ofApp::modeChanged);
+    pianoToggle.addListener(this, &ofApp::modeChanged);
 	
+	// oscillo setup qnd keyboard setup
+    oscillo.setup();
+    oscillo.set_mode(oscillo_modes[0]); // Set initial mode
+    keyboard.setup(this);
 	// if you want to set the device id to be different than the default:
 	//
 	//	auto devices = soundStream.getDeviceList();
@@ -85,12 +107,11 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
 	ofSetColor(225);
-	ofDrawBitmapString("AUDIO OUTPUT EXAMPLE", 32, 32);
-	ofDrawBitmapString("press 's' to unpause the audio\npress 'e' to pause the audio", 31, 92);
-	
 	ofNoFill();
+
+	// draw the GUI sildders:
+	gui.draw();
 	
 	// draw the mono channel:
 	ofPushStyle();
@@ -277,8 +298,7 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 }
 
 void ofApp::noteStart(int key, float frequency){
-
-	//mono and polyphony implementation:
+			//mono and polyphony implementation:
 	// stop the note if it is already playing
     for (auto &o : oscillators) {
         if (o.is_active() && o.get_key() == key) {
@@ -292,18 +312,24 @@ void ofApp::noteStart(int key, float frequency){
 			o.setup();
             o.set_key(key);
             o.set_frequency(frequency);
-            o.set_gain(0.5f);
-			o.set_mode("saw");
-			o.set_brillance(8);
+            o.set_gain(gainSlider);
+			if (sinusToggle) {
+				o.set_mode("sinus");
+			} else if(squareToggle) {
+				o.set_mode("square");
+			} else if(sawToggle) {
+				o.set_mode("saw");
+			} else if(pianoToggle) {
+				o.set_mode("piano");
+			}
+			o.set_brillance((int)brillanceSlider);
             o.start();
             break;
         }
     }
 }
 
-
-	void ofApp::noteEnd(int key){
-		// stop the note if it is already playing
+void ofApp::noteEnd(int key){
 		for (auto &o : oscillators) {
 			if (o.is_active() && o.get_key() == key) {
 				o.set_gain(0.0f);
@@ -312,5 +338,39 @@ void ofApp::noteStart(int key, float frequency){
 			}
 		}
 
-		// for mono add set gain to zero, fix the stop of the second note when first is realised
-	}
+}
+
+//Elle assure qu'un seul toggle est actif et met à jour l'objet oscillo.
+void ofApp::modeChanged(bool & val){
+    // Determine which toggle was clicked by comparing with current oscillo mode
+    string current = oscillo.get_mode();
+
+    // Case: Square clicked
+    if(squareToggle && current != oscillo_modes[0]) {
+        sawToggle = false; sinusToggle = false; pianoToggle = false;
+        oscillo.set_mode(oscillo_modes[0]);
+    }
+    // Case: Saw clicked
+    else if(sawToggle && current != oscillo_modes[1]) {
+        squareToggle = false; sinusToggle = false; pianoToggle = false;
+        oscillo.set_mode(oscillo_modes[1]);
+    }
+    // Case: Sinus clicked
+    else if(sinusToggle && current != oscillo_modes[2]) {
+        squareToggle = false; sawToggle = false; pianoToggle = false;
+        oscillo.set_mode(oscillo_modes[2]);
+    }
+    // Case: Piano clicked
+    else if(pianoToggle && current != oscillo_modes[3]) {
+        squareToggle = false; sawToggle = false; sinusToggle = false;
+        oscillo.set_mode(oscillo_modes[3]);
+    }
+
+    // Guard: Prevent turning off the active mode (Keep at least one true)
+    if (!squareToggle && !sawToggle && !sinusToggle && !pianoToggle) {
+        if (current == oscillo_modes[0]) squareToggle = true;
+        else if (current == oscillo_modes[1]) sawToggle = true;
+        else if (current == oscillo_modes[2]) sinusToggle = true;
+        else if (current == oscillo_modes[3]) pianoToggle = true;
+    }
+}

@@ -32,5 +32,11 @@ class Oscillo : public ofBaseApp{
 		float phase;
 		int key;
 		bool active;
+		float note_gain; // amplitude courante de la note
+		float elapsed;
+		// tentative pour diminuer le son de la note comme un "piano"
+		float env;           // valeur actuelle de l’enveloppe
+		float decayRate;     // vitesse de décroissance
+		bool noteOn; 
 
 };

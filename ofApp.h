@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "Oscillo.h"
 #include "Keyboard.h"
+#include "ofxGui.h" // for the GUI slidders
 
 class ofApp : public ofBaseApp{
 
@@ -49,4 +50,19 @@ class ofApp : public ofBaseApp{
 		float 	phase;
 		float 	phaseAdder;
 		float 	phaseAdderTarget;
+		const string oscillo_modes[4] = {"square", "saw", "sinus", "piano"};
+// GUI Sliders et Panneaux
+// ... inside class ofApp ...
+    ofxPanel gui;
+    ofxFloatSlider brillanceSlider;
+    ofxFloatSlider gainSlider;
+    
+    ofxGuiGroup modeGroup;
+    ofxToggle sinusToggle;
+    ofxToggle squareToggle;
+    ofxToggle sawToggle;
+    ofxToggle pianoToggle; // Added piano
+
+    // Use the array as defined
+    void modeChanged(bool & val);
 };
