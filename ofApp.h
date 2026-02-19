@@ -51,6 +51,7 @@ class ofApp : public ofBaseApp{
 		float 	phaseAdder;
 		float 	phaseAdderTarget;
 		const string oscillo_modes[4] = {"square", "saw", "sinus", "piano"};
+		string current_oscillator_mode = oscillo_modes[0]; // default mode
 // GUI Sliders et Panneaux
 // ... inside class ofApp ...
     ofxPanel gui;
@@ -62,6 +63,8 @@ class ofApp : public ofBaseApp{
     ofxToggle squareToggle;
     ofxToggle sawToggle;
     ofxToggle pianoToggle; // Added piano
+	    
+
 
     // Use the array as defined
     void modeChanged(bool & val);
