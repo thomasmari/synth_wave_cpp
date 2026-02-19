@@ -11,7 +11,7 @@ void ofApp::setup(){
 	phaseAdder 			= 0.0f;
 	phaseAdderTarget 	= 0.0f;
 	volume				= 0.1f;
-	mode_audio = "poly"; //"mono" or "poly"
+	mode_audio = "mono"; //"mono" or "poly"
 
 	if (mode_audio == "poly") {
 		MAX_VOICES = 10;
@@ -323,21 +323,22 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 }
 
 void ofApp::noteStart(int key, float frequency){
-			//mono and polyphony implementation:
-	// stop the note if it is already playing
-    for (auto &o : oscillators) {
-        if (o.is_active() && o.get_key() == key) {
-            return; // Note is already playing, do nothing
-        }
-    }
+	//mono and polyphony implementation:
 
-    // if there is a free voice, we start the note on this voice
-    for (auto &o : oscillators) {
-        if (!o.is_active()) {
+	// If note is already playing, do nothing
+	for (auto &o : oscillators) {
+		if (o.is_active() && o.get_key() == key) {
+			return; // Note is already playing, do nothing
+		}
+	}
+
+	// Try to find a free oscillator
+	for (auto &o : oscillators) {
+		if (!o.is_active()) {
 			o.setup();
-            o.set_key(key);
-            o.set_frequency(frequency);
-            o.set_gain(gainSlider);
+			o.set_key(key);
+			o.set_frequency(frequency);
+			o.set_gain(gainSlider);
 			if (sinusToggle) {
 				o.set_mode("sinus");
 			} else if(squareToggle) {
@@ -348,10 +349,29 @@ void ofApp::noteStart(int key, float frequency){
 				o.set_mode("piano");
 			}
 			o.set_brillance((int)brillanceSlider);
-            o.start();
-            break;
-        }
-    }
+			o.start();
+			return;
+		}
+	}
+
+	// If none are free, replace the first one
+	auto &o = oscillators[0];
+	o.stop();
+	o.setup();
+	o.set_key(key);
+	o.set_frequency(frequency);
+	o.set_gain(gainSlider);
+	if (sinusToggle) {
+		o.set_mode("sinus");
+	} else if(squareToggle) {
+		o.set_mode("square");
+	} else if(sawToggle) {
+		o.set_mode("saw");
+	} else if(pianoToggle) {
+		o.set_mode("piano");
+	}
+	o.set_brillance((int)brillanceSlider);
+	o.start();
 }
 
 void ofApp::noteEnd(int key){
