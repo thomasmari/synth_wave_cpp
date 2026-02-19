@@ -6,11 +6,17 @@
 using std::string;
 
 void Oscillo::setup(){
-	frequency = 440.0f;    
+	    frequency = 440.0f;    
         gain = 0.0f;  // start with no sound         
         mode = "square";       
         brillance = 10;
 		phase = 0.0f;
+        key = -1;
+        active = false;
+        // declaration pour la tentative de son piano
+        env = 0.0f;
+        decayRate = 0.99985f;   
+        noteOn = false;
 }
 
 
@@ -32,6 +38,14 @@ int Oscillo::get_brillance(){
 	return brillance;
 }
 
+int Oscillo::get_key(){
+	return key;
+}
+
+bool Oscillo::is_active(){
+    return active;
+}
+
 
 // ---------------------- setters ---------------------
 
@@ -39,6 +53,10 @@ void Oscillo::set_frequency(float f){
 	if (f>0){
         phase = 0.0f; // reset phase to avoid clicks when changing frequency
 		frequency = f;
+        // decancher enveloppe quand on chang de freq
+        env = 1.0f;       
+        noteOn = true;
+
 	}
 }
 
@@ -61,11 +79,19 @@ void Oscillo::set_brillance(int b) {
 	} 
 }
 
+void Oscillo::set_key(int k) {
+    key = k;
+}
+
 
 // ------------- fonction ppales -----------
+void Oscillo::start() {
+    active = true;
+}
 
 void Oscillo::stop() {
-    gain = 0.0f;
+    active = false;
+
 }
 
 
@@ -82,8 +108,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
             }
             sample *= factor * gain;
             // set sample for both channels (stereo)
-			buffer[n*buffer.getNumChannels()] = sample; //left channel
-			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
+			buffer[n*buffer.getNumChannels()] += sample; //left channel
+			buffer[n*buffer.getNumChannels() + 1] += sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
             phase += 2.0f * M_PI * frequency / 44100.0f;
             if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]    
@@ -101,8 +127,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
             }
             sample *= factor * gain;
             // set sample for both channels (stereo)
-			buffer[n*buffer.getNumChannels()] = sample; //left channel
-			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
+			buffer[n*buffer.getNumChannels()] += sample; //left channel
+			buffer[n*buffer.getNumChannels() + 1] += sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
             phase += 2.0f * M_PI * frequency / 44100.0f;
             if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]        
@@ -114,8 +140,8 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
             float sample = sin(phase);
             sample *= gain;
             // set sample for both channels (stereo)
-			buffer[n*buffer.getNumChannels()] = sample; //left channel
-			buffer[n*buffer.getNumChannels() + 1] = sample; //right channel
+			buffer[n*buffer.getNumChannels()] += sample; //left channel
+			buffer[n*buffer.getNumChannels() + 1] += sample; //right channel
             // incrémenter la phase pour avancer dans l’onde
             phase += 2.0f * M_PI * frequency / 44100.0f;
             if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI; // keep phase in the range [0, 2*pi]    
@@ -123,4 +149,30 @@ void Oscillo::audioOut(ofSoundBuffer & buffer) {
         }
 
     }
+    else if (mode == "piano") {
+    float harmonics[] = {1.0f, 0.6f, 0.4f, 0.3f, 0.2f};
+    float inharmonicFactor[] = {1.0f, 2.01f, 3.02f, 4.03f, 5.05f};
+
+    for (int n = 0; n < buffer_size; n++) {
+        float sample = 0.0f;
+
+        for (int h = 0; h < 5; h++) {
+            sample += harmonics[h] * sin(phase * inharmonicFactor[h]);
+        }
+
+        sample *= gain * env;
+
+        env *= decayRate;
+        if (env < 0.0001f) env = 0.0f;
+
+        buffer[n * buffer.getNumChannels()] += sample;
+        buffer[n * buffer.getNumChannels() + 1] += sample;
+
+        phase += 2.0f * M_PI * frequency / 44100.0f;
+        if (phase > 2.0f * M_PI)
+            phase -= 2.0f * M_PI;
+    }
+}
+
+
 }

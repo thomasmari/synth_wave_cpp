@@ -11,14 +11,21 @@ void ofApp::setup(){
 	phaseAdder 			= 0.0f;
 	phaseAdderTarget 	= 0.0f;
 	volume				= 0.1f;
+	mode_audio = "poly"; //"mono" or "poly"
+
+	if (mode_audio == "poly") {
+		MAX_VOICES = 10;
+	} else if (mode_audio == "mono") {
+		MAX_VOICES = 1;
+	}
 
 	monoAudio.assign(bufferSize, 0.0);
 	frequencies.assign(bufferSize, 0.0);
+	oscillators.resize(MAX_VOICES);
 	
 	soundStream.printDeviceList();
 
 	ofSoundStreamSettings settings;
-	oscillo.setup();
 	keyboard.setup(this);
 	// Gui sliders
 	gui.setup("Synthetizer Controls");
@@ -45,8 +52,6 @@ void ofApp::setup(){
     pianoToggle.addListener(this, &ofApp::modeChanged);
 	
 	// oscillo setup qnd keyboard setup
-    oscillo.setup();
-    oscillo.set_mode(oscillo_modes[0]); // Set initial mode
     keyboard.setup(this);
 	// if you want to set the device id to be different than the default:
 	//
@@ -247,12 +252,25 @@ void ofApp::windowResized(int w, int h){
 
 //--------------------------------------------------------------
 void ofApp::audioOut(ofSoundBuffer & buffer){
-	// call oscillo to update the frequency spectrum
-	oscillo.audioOut(buffer);
-	monoAudio = buffer.getBuffer(); 
-	// Update frequency spectrum
-	computeFourierTransform(buffer);
+	if (mode_audio == "mono") {
+		for(auto &o : oscillators){
+		// Initialize the output buffer to zero
+		for(size_t i=0; i<buffer.size(); i++) buffer[i] = 0.0f;
+		// call oscillo to update the frequency spectrum
+		o.audioOut(buffer);
+		}
+	} else if (mode_audio == "poly") {
+		// Initialize the output buffer to zero
+		for(size_t i=0; i<buffer.size(); i++) buffer[i] = 0.0f;
 
+		// Sum all active oscillators
+		for(auto &o : oscillators){
+    		o.audioOut(buffer);
+        	}
+    	}
+	// Save the current audio buffer for visualization
+	monoAudio = buffer.getBuffer();        	
+	computeFourierTransform(buffer); 
 }
 
 //--------------------------------------------------------------
@@ -281,56 +299,101 @@ void ofApp::computeFourierTransform(ofSoundBuffer & buffer){
 }
 
 void ofApp::noteStart(int key, float frequency){
-	oscillo.set_frequency(frequency);
-	oscillo.set_gain(gainSlider);     // Utilise la valeur du slider
-	oscillo.set_brillance((int)brillanceSlider); // Utilise la valeur du slider	
-	oscillo.set_frequency(frequency);
-	if (sinusToggle) {
-		oscillo.set_mode("sinus");
-	} else if(squareToggle) {
-		oscillo.set_mode("square");
-	} else if(sawToggle) {
-	oscillo.set_mode("saw");
-	} else if(pianoToggle) {
-		oscillo.set_mode("piano");
-	}
+			//mono and polyphony implementation:
+	// stop the note if it is already playing
+    for (auto &o : oscillators) {
+        if (o.is_active() && o.get_key() == key) {
+            return; // Note is already playing, do nothing
+        }
+    }
+
+    // if there is a free voice, we start the note on this voice
+    for (auto &o : oscillators) {
+        if (!o.is_active()) {
+			o.setup();
+            o.set_key(key);
+            o.set_frequency(frequency);
+            o.set_gain(gainSlider);
+			if (sinusToggle) {
+				o.set_mode("sinus");
+			} else if(squareToggle) {
+				o.set_mode("square");
+			} else if(sawToggle) {
+				o.set_mode("saw");
+			} else if(pianoToggle) {
+				o.set_mode("piano");
+			}
+			o.set_brillance((int)brillanceSlider);
+            o.start();
+            break;
+        }
+    }
 }
 
 void ofApp::noteEnd(int key){
-		oscillo.stop(); // no polyphony implemented, so we just stop the oscillo when a key is released
+		for (auto &o : oscillators) {
+			if (o.is_active() && o.get_key() == key) {
+				o.set_gain(0.0f);
+				o.stop();
+				break;
+			}
+		}
+
 }
 
 //Elle assure qu'un seul toggle est actif et met à jour l'objet oscillo.
 void ofApp::modeChanged(bool & val){
     // Determine which toggle was clicked by comparing with current oscillo mode
-    string current = oscillo.get_mode();
+
 
     // Case: Square clicked
-    if(squareToggle && current != oscillo_modes[0]) {
+    if(squareToggle && current_oscillator_mode != oscillo_modes[0]) {
         sawToggle = false; sinusToggle = false; pianoToggle = false;
-        oscillo.set_mode(oscillo_modes[0]);
+		for (auto &o : oscillators) {
+			if (o.is_active()) {
+				o.set_mode(oscillo_modes[0]);	
+			}
+		}
     }
     // Case: Saw clicked
-    else if(sawToggle && current != oscillo_modes[1]) {
+    else if(sawToggle && current_oscillator_mode != oscillo_modes[1]) {
         squareToggle = false; sinusToggle = false; pianoToggle = false;
-        oscillo.set_mode(oscillo_modes[1]);
+		for (auto &o : oscillators) {
+			if (o.is_active()) {
+				o.set_mode(oscillo_modes[1]);	
+			}
+		}
     }
     // Case: Sinus clicked
-    else if(sinusToggle && current != oscillo_modes[2]) {
+    else if(sinusToggle && current_oscillator_mode != oscillo_modes[2]) {
         squareToggle = false; sawToggle = false; pianoToggle = false;
-        oscillo.set_mode(oscillo_modes[2]);
+		for (auto &o : oscillators) {
+			if (o.is_active()) {
+				o.set_mode(oscillo_modes[2]);	
+			}
+		}
     }
     // Case: Piano clicked
-    else if(pianoToggle && current != oscillo_modes[3]) {
+    else if(pianoToggle && current_oscillator_mode != oscillo_modes[3]) {
         squareToggle = false; sawToggle = false; sinusToggle = false;
-        oscillo.set_mode(oscillo_modes[3]);
+		for (auto &o : oscillators) {
+			if (o.is_active()) {
+				o.set_mode(oscillo_modes[3]);	
+			}
+		}
     }
+
 
     // Guard: Prevent turning off the active mode (Keep at least one true)
     if (!squareToggle && !sawToggle && !sinusToggle && !pianoToggle) {
-        if (current == oscillo_modes[0]) squareToggle = true;
-        else if (current == oscillo_modes[1]) sawToggle = true;
-        else if (current == oscillo_modes[2]) sinusToggle = true;
-        else if (current == oscillo_modes[3]) pianoToggle = true;
+        if (current_oscillator_mode == oscillo_modes[0]) squareToggle = true; 
+        else if (current_oscillator_mode == oscillo_modes[1]) sawToggle = true; 
+        else if (current_oscillator_mode == oscillo_modes[2]) sinusToggle = true; 
+        else if (current_oscillator_mode == oscillo_modes[3]) pianoToggle = true; 
     }
-}
+	// Update current mode after ensuring one toggle is active
+        if (squareToggle && current_oscillator_mode != oscillo_modes[0]) current_oscillator_mode = oscillo_modes[0];
+        else if (sawToggle && current_oscillator_mode != oscillo_modes[1]) current_oscillator_mode = oscillo_modes[1];
+        else if (sinusToggle && current_oscillator_mode != oscillo_modes[2]) current_oscillator_mode = oscillo_modes[2]; 	
+        else if (pianoToggle && current_oscillator_mode != oscillo_modes[3]) current_oscillator_mode = oscillo_modes[3];
+    }

@@ -33,14 +33,17 @@ class ofApp : public ofBaseApp{
 
 		ofSoundStream soundStream;
 
+		Keyboard keyboard;
+
 		float 	pan;
 		int		sampleRate;
 		float 	volume;
+		string  mode_audio;
+		int MAX_VOICES;
 
 		vector <float> monoAudio;
 		vector <float> frequencies;
-		Oscillo oscillo;
-		Keyboard keyboard;
+		vector<Oscillo> oscillators;
 
 		//------------------- for the simple sine wave synthesis
 		float 	targetFrequency;
@@ -48,6 +51,7 @@ class ofApp : public ofBaseApp{
 		float 	phaseAdder;
 		float 	phaseAdderTarget;
 		const string oscillo_modes[4] = {"square", "saw", "sinus", "piano"};
+		string current_oscillator_mode = oscillo_modes[0]; // default mode
 // GUI Sliders et Panneaux
 // ... inside class ofApp ...
     ofxPanel gui;
@@ -59,6 +63,8 @@ class ofApp : public ofBaseApp{
     ofxToggle squareToggle;
     ofxToggle sawToggle;
     ofxToggle pianoToggle; // Added piano
+	    
+
 
     // Use the array as defined
     void modeChanged(bool & val);
