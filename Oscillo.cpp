@@ -57,7 +57,7 @@ void Oscillo::set_gain(float g) {
 }
 
 void Oscillo::set_mode(string m) { 
-	if (m == "square" || m == "saw" || m == "sinus" || m == "piano") {
+	if (m == "square" || m == "saw" || m == "sinus" || m == "piano"){
 		mode = m;
 	}
 }
