@@ -36,6 +36,7 @@ Replace the generated `src` folder in your new project with this one:
 ```sh
 cp -r /path/to/this/src /path/to/openFrameworks/apps/myApps/synthetizer/src
 ```
+Add ofxGui in the addons.make filein the synthetizer folder.
 
 ## How to Build
 
@@ -55,9 +56,3 @@ make run
 - `Keyboard.cpp/h`: Manages keyboard state and rendering.
 - `Oscillo.cpp/h`: Implements oscillator behavior and sound synthesis.
 - `main.cpp`: Standard OpenFrameworks entry point.
-
-## License
-MIT License (or specify your license here)
-
----
-For more details, see the main project README or documentation.
