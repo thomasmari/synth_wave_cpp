@@ -47,8 +47,15 @@ void ofApp::setup(){
     modePolyphony.setup("Polyphony Mode");
     modePolyphony.add(polyToggle.setup("Poly", true)); // Polyphony default
     
+    modeFilter.setup("Filter Options");
+	modeFilter.add(filterToggle.setup("Filter Active", false));
+    modeFilter.add(filterFrequency.setup("Filter Frequency", 1000.0f, 10.0f, 20000.0f));
+    modeFilter.add(filterQuality.setup("Filter Quality", 1.0f, 0.0f, 1.0f));
+    modeFilter.add(filterGain.setup("Filter Gain", 0.0f, -20.0f, 20.0f));
+
     gui.add(&modeGroup);
     gui.add(&modePolyphony);
+    gui.add(&modeFilter);
 
     // Listeners
     squareToggle.addListener(this, &ofApp::modeChanged);
@@ -56,7 +63,13 @@ void ofApp::setup(){
     sinusToggle.addListener(this, &ofApp::modeChanged);
     pianoToggle.addListener(this, &ofApp::modeChanged);
     polyToggle.addListener(this, &ofApp::change_polyphony_mode);
-	
+	filterToggle.addListener(&filter, &Filter::setActive);
+	filterFrequency.addListener(&filter, &Filter::setFrequency);
+	filterQuality.addListener(&filter, &Filter::setQuality);
+	filterGain.addListener(&filter, &Filter::setGain);
+
+// Correction de l'appel setup du filtre (selon votre Filter.h actuel)
+	filter.setup();
 	// oscillo setup qnd keyboard setup
     keyboard.setup(this);
 	// if you want to set the device id to be different than the default:
@@ -106,6 +119,9 @@ void ofApp::setup(){
 
 	// on OSX: if you want to use ofSoundPlayer together with ofSoundStream you need to synchronize buffersizes.
 	// use ofFmodSetBuffersize(bufferSize) to set the buffersize in fmodx prior to loading a file.
+
+	// filters
+	filter.setup();
 }
 
 void ofApp::change_polyphony_mode(bool & val){
@@ -308,6 +324,8 @@ void ofApp::audioOut(ofSoundBuffer & buffer){
     		o.audioOut(buffer);
         	}
     	}
+	// aply the filter to the output buffer
+	filter.audioOut(buffer);
 	// Save the current audio buffer for visualization
 	monoAudio = buffer.getBuffer();        	
 	computeFourierTransform(buffer); 

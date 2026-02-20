@@ -4,6 +4,7 @@
 #include "Oscillo.h"
 #include "Keyboard.h"
 #include "ofxGui.h" // for the GUI slidders
+#include "Filter.h" // for the filter implementation
 
 class ofApp : public ofBaseApp{
 
@@ -52,6 +53,7 @@ class ofApp : public ofBaseApp{
 		float 	phaseAdderTarget;
 		const string oscillo_modes[4] = {"square", "saw", "sinus", "piano"};
 		string current_oscillator_mode = oscillo_modes[0]; // default mode
+		Filter filter; // for the filter implementation
 // GUI Sliders et Panneaux
 // ... inside class ofApp ...
     ofxPanel gui;
@@ -66,6 +68,12 @@ class ofApp : public ofBaseApp{
 
 	ofxGuiGroup modePolyphony;
     ofxToggle polyToggle;
+
+	ofxGuiGroup modeFilter;
+	ofxToggle filterToggle;
+	ofxFloatSlider filterFrequency;
+	ofxFloatSlider filterQuality;
+	ofxFloatSlider filterGain;
 
 	    
 
