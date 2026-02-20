@@ -19,7 +19,7 @@ This directory contains the main source code for the Synthetizer project.
 
 ### 1. Install OpenFrameworks
 
-Follow the official instructions for your OS: https://openframeworks.cc/download/
+Follow the official instructions for your OS: https://openframeworks.cc/download/.
 Build the project generator as described in the OpenFrameworks site.
 
 ### 2. Create a New OpenFrameworks Project
@@ -36,7 +36,7 @@ Replace the generated `src` folder in your new project with this one:
 ```sh
 cp -r /path/to/this/src /path/to/openFrameworks/apps/myApps/synthetizer/src
 ```
-Add ofxGui in the addons.make filein the synthetizer folder.
+Add ofxGui in the addons.make file in the synthetizer folder.
 
 ## How to Build
 
