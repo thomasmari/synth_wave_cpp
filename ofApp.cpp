@@ -11,7 +11,7 @@ void ofApp::setup(){
 	phaseAdder 			= 0.0f;
 	phaseAdderTarget 	= 0.0f;
 	volume				= 0.1f;
-	mode_audio = "mono"; //"mono" or "poly"
+	mode_audio = "poly"; //"mono" or "poly"
 
 	if (mode_audio == "poly") {
 		MAX_VOICES = 10;
