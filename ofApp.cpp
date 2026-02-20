@@ -42,14 +42,20 @@ void ofApp::setup(){
     modeGroup.add(sawToggle.setup(oscillo_modes[1], false));
     modeGroup.add(sinusToggle.setup(oscillo_modes[2], false));
     modeGroup.add(pianoToggle.setup(oscillo_modes[3], false));
+
+
+    modePolyphony.setup("Polyphony Mode");
+    modePolyphony.add(polyToggle.setup("Poly", true)); // Polyphony default
     
     gui.add(&modeGroup);
+    gui.add(&modePolyphony);
 
     // Listeners
     squareToggle.addListener(this, &ofApp::modeChanged);
     sawToggle.addListener(this, &ofApp::modeChanged);
     sinusToggle.addListener(this, &ofApp::modeChanged);
     pianoToggle.addListener(this, &ofApp::modeChanged);
+    polyToggle.addListener(this, &ofApp::change_polyphony_mode);
 	
 	// oscillo setup qnd keyboard setup
     keyboard.setup(this);
@@ -102,6 +108,16 @@ void ofApp::setup(){
 	// use ofFmodSetBuffersize(bufferSize) to set the buffersize in fmodx prior to loading a file.
 }
 
+void ofApp::change_polyphony_mode(bool & val){
+	if (!polyToggle) {
+		mode_audio = "mono";
+		MAX_VOICES = 1;
+	} else if (polyToggle) {
+		mode_audio = "poly";
+		MAX_VOICES = 10;
+	}
+	oscillators.resize(MAX_VOICES);
+}
 
 //--------------------------------------------------------------
 void ofApp::update(){

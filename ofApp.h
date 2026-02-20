@@ -63,9 +63,14 @@ class ofApp : public ofBaseApp{
     ofxToggle squareToggle;
     ofxToggle sawToggle;
     ofxToggle pianoToggle; // Added piano
+
+	ofxGuiGroup modePolyphony;
+    ofxToggle polyToggle;
+
 	    
 
 
     // Use the array as defined
     void modeChanged(bool & val);
+	void change_polyphony_mode(bool & val);
 };
