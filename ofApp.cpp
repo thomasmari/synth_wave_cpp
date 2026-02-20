@@ -49,8 +49,8 @@ void ofApp::setup(){
     
     modeFilter.setup("Filter Options");
 	modeFilter.add(filterToggle.setup("Filter Active", false));
-    modeFilter.add(filterFrequency.setup("Filter Frequency", 1000.0f, 10.0f, 20000.0f));
-    modeFilter.add(filterQuality.setup("Filter Quality", 1.0f, 0.0f, 1.0f));
+    modeFilter.add(filterFrequency.setup("Filter Frequency", 1000.0f, 20.0f, 5000.0f));
+    modeFilter.add(filterQuality.setup("Filter Quality", 1.0f, 0.1f, 1.0f));
     modeFilter.add(filterGain.setup("Filter Gain", 0.0f, -20.0f, 20.0f));
 
     gui.add(&modeGroup);
@@ -172,7 +172,6 @@ void ofApp::draw(){
 				float x =  ofMap(i, 0, monoAudio.size(), 0, 700, true);
 	        
         // On extrait le signe et on applique une racine carrée pour "gonfler" les petites valeurs
-        
 		float normal_value = 0.8f * monoAudio[i] / numberOfActiveOscillators ; // valeur absolue
         float compressedValue = 2*log10(1+normal_value)/log10(2) - 1.0f; // 0.8f pour éviter de toucher les bords du rectangle	
         
@@ -268,18 +267,10 @@ void ofApp::keyReleased  (int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-	int width = ofGetWidth();
-	pan = (float)x / (float)width;
-	float height = (float)ofGetHeight();
-	float heightPct = ((height-y) / height);
-	targetFrequency = 22000.0f * heightPct;
-	phaseAdderTarget = (targetFrequency / (float) sampleRate) * glm::two_pi<float>();
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-	int width = ofGetWidth();
-	pan = (float)x / (float)width;
 }
 
 //--------------------------------------------------------------
